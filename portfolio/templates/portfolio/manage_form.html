@@ -1,0 +1,16 @@
+{% extends 'portfolio/dashboard_base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block content %}
+<section class="dashboard-welcome compact-welcome">
+  <div><p class="dashboard-kicker">PORTFOLIO MANAGEMENT / {{ item_type|upper }}</p><h1>{{ page_title }}<span>.</span></h1><p>Fill in the details below. You can update or remove this {{ item_type }} later.</p></div>
+  <a class="dashboard-secondary" href="{% url 'dashboard' %}#{{ item_type }}s">← Back to dashboard</a>
+</section>
+<section class="dashboard-panel edit-panel">
+  <form method="post" class="dashboard-form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="form-actions"><button class="dashboard-primary" type="submit">Save {{ item_type }} <span>↗</span></button><a class="dashboard-secondary" href="{% url 'dashboard' %}">Cancel</a></div>
+  </form>
+</section>
+{% endblock %}

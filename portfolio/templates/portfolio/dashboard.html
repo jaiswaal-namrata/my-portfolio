@@ -1,0 +1,79 @@
+{% extends 'portfolio/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<section class="dashboard-welcome">
+  <div class="welcome-copy">
+    <p class="dashboard-kicker">PORTFOLIO MANAGEMENT · OVERVIEW</p>
+    <h1>Portfolio overview</h1>
+    <p>Manage profile details, projects, skills, and contact enquiries from one workspace.</p>
+    <a class="dashboard-primary" href="{% url 'home' %}" target="_blank" rel="noopener noreferrer">View live portfolio <span aria-hidden="true">↗</span></a>
+  </div>
+</section>
+
+<section class="dashboard-stats" aria-label="Portfolio overview">
+  <article><span>PROJECTS</span><strong>{{ projects|length }}</strong><small>Displayed on your portfolio</small></article>
+  <article><span>SKILLS</span><strong>{{ skills|length }}</strong><small>In your toolkit</small></article>
+  <article><span>MESSAGES</span><strong>{{ message_count }}</strong><small>Saved contact enquiries</small></article>
+</section>
+
+<section class="dashboard-panel" id="messages">
+  <div class="panel-heading"><div><p class="dashboard-kicker">FROM YOUR CONTACT FORM</p><h2>Recent messages <span class="count-pill">{{ message_count }}</span></h2><p>Newest enquiries first. Showing up to 10 messages.</p></div></div>
+  {% if contact_messages %}
+  <div class="contact-message-list">
+    {% for contact_message in contact_messages %}
+    <article class="contact-message">
+      <div class="contact-message-heading"><div><h3>{{ contact_message.subject }}</h3><p><a href="mailto:{{ contact_message.email }}">{{ contact_message.name }} · {{ contact_message.email }}</a></p></div><time datetime="{{ contact_message.created_at|date:'c' }}">{{ contact_message.created_at|date:"M j, Y · g:i a" }}</time></div>
+      <p class="contact-message-body">{{ contact_message.message|linebreaksbr }}</p>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="dashboard-empty"><span>✉</span><p>No enquiries yet. Messages sent through the public contact form will appear here.</p></div>
+  {% endif %}
+</section>
+
+<section class="dashboard-panel profile-panel" id="profile">
+  <div class="panel-heading"><div><p class="dashboard-kicker">YOUR INTRODUCTION</p><h2>Profile & resume</h2><p>These details appear on your site and printable resume.</p></div><a class="dashboard-secondary" href="{% url 'resume' %}" target="_blank" rel="noopener noreferrer">Preview resume ↗</a></div>
+  <form method="post" action="{% url 'dashboard' %}" class="dashboard-form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="dashboard-primary" type="submit">Save profile <span>↗</span></button>
+  </form>
+</section>
+
+<section class="dashboard-panel" id="projects">
+  <div class="panel-heading"><div><p class="dashboard-kicker">WHAT YOU'VE MADE</p><h2>Projects <span class="count-pill">{{ projects|length }}</span></h2><p>Add, edit, or remove a project shown on your public portfolio.</p></div><a class="dashboard-primary" href="{% url 'project_create' %}">Add project <span>＋</span></a></div>
+  {% if projects %}
+  <div class="management-list">
+    {% for project in projects %}
+    <article class="management-item">
+      <span class="item-index">{{ forloop.counter|stringformat:"02d" }}</span>
+      <div class="item-copy"><h3>{{ project.title }}</h3><p>{{ project.technologies|default:"Project" }} · {{ project.description|truncatechars:105 }}</p></div>
+      <div class="item-actions"><a href="{% url 'project_edit' project.pk %}">Edit</a><form method="post" action="{% url 'project_delete' project.pk %}" onsubmit="return confirm('Delete this project?');">{% csrf_token %}<button type="submit">Delete</button></form></div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="dashboard-empty"><span>↗</span><p>No projects yet. Add one to show your work on the portfolio.</p></div>
+  {% endif %}
+</section>
+
+<section class="dashboard-panel" id="skills">
+  <div class="panel-heading"><div><p class="dashboard-kicker">YOUR TOOLKIT</p><h2>Skills <span class="count-pill">{{ skills|length }}</span></h2><p>Keep the technologies shown on your portfolio up to date.</p></div><a class="dashboard-primary" href="{% url 'skill_create' %}">Add skill <span>＋</span></a></div>
+  {% if skills %}
+  <div class="management-list">
+    {% for skill in skills %}
+    <article class="management-item">
+      <span class="item-index">{{ forloop.counter|stringformat:"02d" }}</span>
+      <div class="item-copy"><h3>{{ skill.name }}</h3><p>{{ skill.category|default:"Skill" }} · {{ skill.proficiency }}% proficiency</p></div>
+      <div class="item-actions"><a href="{% url 'skill_edit' skill.pk %}">Edit</a><form method="post" action="{% url 'skill_delete' skill.pk %}" onsubmit="return confirm('Delete this skill?');">{% csrf_token %}<button type="submit">Delete</button></form></div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="dashboard-empty"><span>✳</span><p>No skills added yet. Add your first skill to complete your portfolio.</p></div>
+  {% endif %}
+</section>
+{% endblock %}
